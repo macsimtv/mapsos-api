@@ -1,15 +1,15 @@
-FROM node:14.5.0-alpine
+FROM node:16-alpine
 
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
-COPY ./package*.json ./
+# Install app dependencies
+COPY package*.json ./
 
 RUN npm install
 
+# Bundle app source
 COPY . .
 
-# RUN npm run build
-
 EXPOSE 3000
-CMD [ "npm", "run", "dev" ]
-# CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "dev"]
