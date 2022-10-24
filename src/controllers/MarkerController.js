@@ -4,10 +4,8 @@ class MarkerController {
     static async index(req, res) {
         try {
             const { user } = req;
-
-            console.log(user._id, user);
     
-            const markers = await Marker.find({ user: '635295d51d7bcb05428689b4' });
+            const markers = await Marker.find({ user: user._id });
     
             res.status(200).json({ success: true, markers });
         } catch (error) {
@@ -31,7 +29,6 @@ class MarkerController {
 
         const { name, description, latitude, longitude } = req.body;
 
-        // Convert to string latitude and longitude
         const lat = String(latitude);
         const lng = String(longitude);
 
@@ -53,21 +50,25 @@ class MarkerController {
     }
 
     static async update(req, res) {
-        const { user } = req;
         const { id } = req.params;
-        const { title, description, latitude, longitude } = req.body;
+        const { name, description, latitude, longitude } = req.body;
 
-        // Update
-        const marker = await Marker.findOneAndUpdate({ _id: id, user: user._id }, {
-            title,
-            description,
-            latitude,
-            longitude,
-        }, { new: true });
-
+        const marker = await Marker.findById(id);
+        
         if (!marker) return res.status(404).json({ success: false, message: 'Marker not found' });
 
-        res.status(200).json({ success: true, message: 'Marker updated', marker });
+        marker.name = name;
+        marker.description = description;
+        marker.latitude = latitude;
+        marker.longitude = longitude;
+
+        try {
+            await marker.save();
+
+            res.status(200).json({ success: true, message: 'Marker updated', marker });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error });
+        }
     }
 
     static async destroy(req, res) {
